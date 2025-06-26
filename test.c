@@ -7,14 +7,14 @@
 */
 long vonMangolt1(long x) {
     // find the first prime divisor
-    for (long i = 2; i*i <= x; i++) {
+    for (long i = 2; i * i <= x; i++) {
         // check if it is a prime power
         if (x % i == 0) {
             long remainder = x;
             while (remainder > 1) {
                 if (remainder % i == 0) {
                     remainder = remainder / i;
-                }else {
+                } else {
                     return 1;
                 }
             }
@@ -25,7 +25,6 @@ long vonMangolt1(long x) {
 }
 
 int main() {
-
     //init the dirichlet group G
     dirichlet_group_t G;
 
@@ -45,7 +44,6 @@ int main() {
 
     //loop through all q
     for (long q = 2; q < 500; q++) {
-
         dirichlet_group_init(G, q);
 
         dirichlet_char_init(chi, G);
@@ -53,25 +51,22 @@ int main() {
         //loop through all primitive characters
         dirichlet_char_next_primitive(chi, G);
         do {
-
             // check if it is quadratic
             if (dirichlet_char_is_real(G, chi)) {
-
                 arb_t sum;
 
                 arb_init(sum);
 
                 //calculate the partial sum
                 for (long i = 1; i <= len; i++) {
-
                     long val = dirichlet_chi(G, chi, i);
 
-                    if (val != - 1) {
+                    if (val != -1) {
                         long n = vonMangolt1(i);
                         if (n != 1) {
                             arb_t num;
                             arb_init(num);
-                            arb_log_ui(num, n,  prec);
+                            arb_log_ui(num, n, prec);
 
                             arb_t den;
                             arb_init(den);
@@ -88,15 +83,12 @@ int main() {
 
                             if (val == 0) {
                                 arb_add(sum, sum, term, prec);
-                            }else {
+                            } else {
                                 arb_neg(term, term);
                                 arb_add(sum, sum, term, prec);
                             }
-
-
                         }
                     }
-
                 }
                 printf("q = %ld @", q);
                 dirichlet_char_print(G, chi);
@@ -104,10 +96,8 @@ int main() {
                 arb_print(sum);
                 printf("\n");
             }
-
         } while (dirichlet_char_next_primitive(chi, G) >= 0);
     }
 
     return 0;
 }
-
