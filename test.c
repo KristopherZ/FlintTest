@@ -24,68 +24,73 @@ int main() {
 
     dirichlet_group_t G;
 
-    ulong q = 4;
-
     long len = 100000;
 
     long prec = 100;
 
-    dirichlet_group_init(G, q);
+    for (long q = 2; q < 500; q++) {
 
-    dirichlet_char_t chi;
-    dirichlet_char_init(chi, G);
-    dirichlet_char_next_primitive(chi, G);
-    do {
+        dirichlet_group_init(G, q);
 
-        if (dirichlet_char_is_real(G, chi)) {
+        dirichlet_char_t chi;
+        dirichlet_char_init(chi, G);
+        dirichlet_char_next_primitive(chi, G);
+        do {
 
-            arb_t sigma;
-            arb_init(sigma);
-            arb_set_d(sigma, 1.1);
+            if (dirichlet_char_is_real(G, chi)) {
 
-            arb_t sum;
-            arb_init(sum);
+                arb_t sigma;
+                arb_init(sigma);
+                arb_set_d(sigma, 1.1);
 
-            for (long i = 1; i <= len; i++) {
+                arb_t sum;
+                arb_init(sum);
 
-                long val = dirichlet_chi(G, chi, i);
+                for (long i = 1; i <= len; i++) {
 
-                if (val != - 1) {
-                    long n = vonMangolt1(i);
-                    if (n != 1) {
-                        arb_t num;
-                        arb_init(num);
-                        arb_log_ui(num, n,  prec);
+                    long val = dirichlet_chi(G, chi, i);
 
-                        arb_t den;
-                        arb_init(den);
+                    if (val != - 1) {
+                        long n = vonMangolt1(i);
+                        if (n != 1) {
+                            arb_t num;
+                            arb_init(num);
+                            arb_log_ui(num, n,  prec);
 
-                        arb_t b;
-                        arb_init(b);
-                        arb_set_si(b, i);
+                            arb_t den;
+                            arb_init(den);
 
-                        arb_pow(den, b, sigma, prec);
+                            arb_t b;
+                            arb_init(b);
+                            arb_set_si(b, i);
 
-                        arb_t term;
-                        arb_init(term);
-                        arb_div(term, num, den, prec);
+                            arb_pow(den, b, sigma, prec);
 
-                        if (val == 0) {
-                            arb_add(sum, sum, term, prec);
-                        }else {
-                            arb_neg(term, term);
-                            arb_add(sum, sum, term, prec);
+                            arb_t term;
+                            arb_init(term);
+                            arb_div(term, num, den, prec);
+
+                            if (val == 0) {
+                                arb_add(sum, sum, term, prec);
+                            }else {
+                                arb_neg(term, term);
+                                arb_add(sum, sum, term, prec);
+                            }
+
+
                         }
-
-
                     }
+
                 }
-
+                printf("q = %ld @", q);
+                dirichlet_char_print(G, chi);
+                printf("\n");
+                arb_print(sum);
+                printf("\n");
             }
-            arb_print(sum);
-        }
 
-    } while (dirichlet_char_next_primitive(chi, G) >= 0);
+        } while (dirichlet_char_next_primitive(chi, G) >= 0);
+    }
 
     return 0;
 }
