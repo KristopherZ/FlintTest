@@ -24,26 +24,28 @@ int main() {
 
     dirichlet_group_t G;
 
+    dirichlet_char_t chi;
+
     long len = 100000;
 
     long prec = 100;
+
+    arb_t sigma;
+    arb_init(sigma);
+    arb_set_d(sigma, 1.1);
 
     for (long q = 2; q < 500; q++) {
 
         dirichlet_group_init(G, q);
 
-        dirichlet_char_t chi;
         dirichlet_char_init(chi, G);
         dirichlet_char_next_primitive(chi, G);
         do {
 
             if (dirichlet_char_is_real(G, chi)) {
 
-                arb_t sigma;
-                arb_init(sigma);
-                arb_set_d(sigma, 1.1);
-
                 arb_t sum;
+
                 arb_init(sum);
 
                 for (long i = 1; i <= len; i++) {
