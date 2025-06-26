@@ -1,12 +1,9 @@
 #include <stdio.h>
-#include <flint/flint.h>
-#include <flint/fmpz.h>
-#include <flint/fmpz_factor.h>
 #include <flint/arb.h>
-#include <math.h>
+
 
 long vonMangolt1(long x) {
-    for (long i = 2; i <= x; i++) {
+    for (long i = 2; i*i <= x; i++) {
         if (x % i == 0) {
             long remainder = x;
             while (remainder > 1) {
@@ -31,7 +28,7 @@ int main() {
     arb_t sum;
     arb_init(sum);
 
-    long len = 100000;
+    long len = 10000000;
 
     long prec = 100;
 
