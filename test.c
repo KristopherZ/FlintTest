@@ -2,9 +2,13 @@
 #include <flint/arb.h>
 #include <flint/dirichlet.h>
 
-
+/* An alternate version of von mangolt function,
+ * it returns the exp of von mangolt lambda
+*/
 long vonMangolt1(long x) {
+    // find the first prime divisor
     for (long i = 2; i*i <= x; i++) {
+        // check if it is a prime power
         if (x % i == 0) {
             long remainder = x;
             while (remainder > 1) {
@@ -22,32 +26,42 @@ long vonMangolt1(long x) {
 
 int main() {
 
+    //init the dirichlet group G
     dirichlet_group_t G;
 
+    //init the dirichlet character chi
     dirichlet_char_t chi;
 
+    //number of terms to compute
     long len = 100000;
 
+    //precision set up
     long prec = 100;
 
+    //set up sigma
     arb_t sigma;
     arb_init(sigma);
     arb_set_d(sigma, 1.1);
 
+    //loop through all q
     for (long q = 2; q < 500; q++) {
 
         dirichlet_group_init(G, q);
 
         dirichlet_char_init(chi, G);
+
+        //loop through all primitive characters
         dirichlet_char_next_primitive(chi, G);
         do {
 
+            // check if it is quadratic
             if (dirichlet_char_is_real(G, chi)) {
 
                 arb_t sum;
 
                 arb_init(sum);
 
+                //calculate the partial sum
                 for (long i = 1; i <= len; i++) {
 
                     long val = dirichlet_chi(G, chi, i);
