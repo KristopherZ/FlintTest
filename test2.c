@@ -1,28 +1,7 @@
+#include <math.h>
 #include <stdio.h>
 #include <flint/arb.h>
 #include <flint/dirichlet.h>
-
-/* An alternate version of von mangolt function,
- * it returns the exp of von mangolt lambda
-*/
-long vonMangolt1(long x) {
-    // find the first prime divisor
-    for (long i = 2; i * i <= x; i++) {
-        // check if it is a prime power
-        if (x % i == 0) {
-            long remainder = x;
-            while (remainder > 1) {
-                if (remainder % i == 0) {
-                    remainder = remainder / i;
-                } else {
-                    return 1;
-                }
-            }
-            return i;
-        }
-    }
-    return x;
-}
 
 int main() {
     //init the dirichlet group G
@@ -31,19 +10,28 @@ int main() {
     //init the dirichlet character chi
     dirichlet_char_t chi;
 
-    //number of terms to compute
-    long len = 9;
-
     //precision set up
-    long prec = 100;
+    long prec = 200;
+
+    //number of terms to compute
+    long len = 10000;
 
     //set up sigma
     arb_t sigma;
     arb_init(sigma);
     arb_set_d(sigma, 1.1);
 
+    //
+    fmpz_t prime;
+    fmpz_init(prime);
+
+    //
+    fmpz_t pow;
+    fmpz_init(pow);
+
     //loop through all q
-    for (long q = 3; q < 5; q++) {
+    for (long q = 2; q < 100000; q++) {
+
         dirichlet_group_init(G, q);
 
         dirichlet_char_init(chi, G);
@@ -58,22 +46,35 @@ int main() {
                 arb_init(sum);
 
                 //calculate the partial sum
-                for (long i = 1; i <= len; i++) {
-                    long val = dirichlet_chi(G, chi, i);
 
+                fmpz_set_ui(prime, 2);
+
+                while (fmpz_cmp_si(prime, len) < 0) {
+                    long val = dirichlet_chi(G, chi, fmpz_get_si(prime));
                     if (val != -1) {
-                        long n = vonMangolt1(i);
-                        if (n != 1) {
-                            arb_t num;
-                            arb_init(num);
-                            arb_log_ui(num, n, prec);
 
-                            arb_t den;
-                            arb_init(den);
+                        arb_t num;
+                        arb_init(num);
+                        arb_log_ui(num, fmpz_get_si(prime), prec);
+
+                        arb_t den;
+                        arb_init(den);
+
+                        fmpz_init_set(pow, prime);
+
+                        int sign, cur;
+                        if (val == 0) {
+                            cur = 1;
+                            sign = 1;
+                        }else {
+                            cur = -1;
+                            sign = -1;
+                        }
+                        while (fmpz_cmp_si(pow, len) < 0) {
 
                             arb_t b;
                             arb_init(b);
-                            arb_set_si(b, i);
+                            arb_set_si(b, fmpz_get_si(pow));
 
                             arb_pow(den, b, sigma, prec);
 
@@ -81,15 +82,27 @@ int main() {
                             arb_init(term);
                             arb_div(term, num, den, prec);
 
-                            if (val == 0) {
+                            // printf("term:");
+                            // arb_print(term);
+
+                            if (cur == 1) {
                                 arb_add(sum, sum, term, prec);
+                                // printf("sign:+");
                             } else {
                                 arb_neg(term, term);
                                 arb_add(sum, sum, term, prec);
+                                // printf("sign:-");
                             }
+                            // printf("\n");
+                            fmpz_mul(pow, pow, prime);
+                            cur = cur * sign;
                         }
                     }
+                    //
+                    fmpz_nextprime(prime, prime, 1);
                 }
+
+                //print
                 printf("q = %ld @", q);
                 dirichlet_char_print(G, chi);
                 printf("\n");
