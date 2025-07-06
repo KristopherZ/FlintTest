@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include <flint/arb.h>
 #include <flint/dirichlet.h>
+#include  <math.h>
+#include <time.h>
 
 /* An alternate version of von mangolt function,
  * it returns the exp of von mangolt lambda
@@ -25,14 +27,15 @@ long vonMangolt1(long x) {
 }
 
 int main() {
+
+    clock_t start, end;
+    start = clock();  // start timer
+
     //init the dirichlet group G
     dirichlet_group_t G;
 
     //init the dirichlet character chi
     dirichlet_char_t chi;
-
-    //number of terms to compute
-    long len = 9;
 
     //precision set up
     long prec = 100;
@@ -42,11 +45,17 @@ int main() {
     arb_init(sigma);
     arb_set_d(sigma, 1.1);
 
+    //alpha
+    double alpha = 1;
+
     //loop through all q
-    for (long q = 3; q < 5; q++) {
+    for (long q = 2; q <10000; q++) {
         dirichlet_group_init(G, q);
 
         dirichlet_char_init(chi, G);
+
+        //number of terms to compute
+        long len = pow(q,alpha);
 
         //loop through all primitive characters
         dirichlet_char_next_primitive(chi, G);
@@ -98,6 +107,11 @@ int main() {
             }
         } while (dirichlet_char_next_primitive(chi, G) >= 0);
     }
+
+    end = clock();  // end timer
+
+    double elapsed_time = (double)(end - start) / CLOCKS_PER_SEC;
+    printf("Elapsed time: %.3f seconds\n", elapsed_time);
 
     return 0;
 }
