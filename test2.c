@@ -38,7 +38,7 @@ int main() {
     //precision set up
     long prec = 200;
 
-    double alpha = 1;
+    double alpha = .3;
 
     //set up sigma
     arb_t sigma;
@@ -57,7 +57,7 @@ int main() {
     arb_t term;
 
     //loop through all q
-    for (long q = 2; q < 10000; q++) {
+    for (long q = 2; q < 1000000; q++) {
 
         dirichlet_group_init(G, q);
 
