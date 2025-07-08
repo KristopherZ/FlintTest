@@ -6,15 +6,9 @@
 #include <flint/long_extras.h>
 #include <time.h>
 
-int main() {
-    clock_t start, end;
-    start = clock(); // start timer
-
-    //len of prime
-    long lenPrime = 50000;
-
+//read a list of primes
+int read_primes(long lenPrime, long *primes) {
     FILE *file;
-    long *primes = (long *) malloc(lenPrime * sizeof(long));
     int count = 0;
     file = fopen("primes.txt", "r");
     if (file == NULL) {
@@ -28,17 +22,38 @@ int main() {
     }
 
     fclose(file);
+    return 0;
+}
 
-    printf("Elapsed time after file reading: %.3f seconds\n", (double) (clock() - start) / CLOCKS_PER_SEC);
+int main() {
+    //Constants
+
+    //len of prime
+    const long lenPrime = 50000;
 
     //precision set up
     long prec = 100;
+
+    //set up alpha
     double alpha = 0.3;
+
+    //set up length to calculate
+    long qMax = 1000000;
 
     //set up lambda
     arb_t lambda;
     arb_init(lambda);
     arb_set_d(lambda, 1);
+
+
+    clock_t start, end;
+    start = clock(); // start timer
+
+    long *primes = (long *) malloc(lenPrime * sizeof(long));
+
+    if (read_primes(lenPrime, primes) == 1) return 1;
+
+    printf("Elapsed time after file reading: %.3f seconds\n", (double) (clock() - start) / CLOCKS_PER_SEC);
 
     // setting up variables
     arb_t logq;
@@ -64,7 +79,6 @@ int main() {
     }
 
     //loop through all q
-    long qMax = 1000000;
     for (long q = -qMax; q <= qMax; q++) {
         if (q % 100000 == 0) {
             printf("Elapsed time when q=%d: %.3f seconds\n", q, (double) (clock() - start) / CLOCKS_PER_SEC);
